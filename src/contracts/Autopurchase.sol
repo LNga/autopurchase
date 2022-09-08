@@ -4,14 +4,14 @@ pragma solidity >=0.7.0 <0.9.0;
 contract Autopurchase {
     
    event AskItem(
-        string indexed itemRef,
-        uint indexed clientID,
-        bytes32 indexed txNumber
+        string  itemRef,
+        uint  clientID,
+        bytes32  txNumber
     );
 
     event BackItem(
-        string indexed itemRef,
-        uint indexed clientID
+        string  itemRef,
+        uint  clientID
     );
 
    constructor(bytes32 paymentID,string memory itemRef, uint clientID)  {

@@ -1,9 +1,9 @@
 import React from 'react';
 import detectEthereumProvider from '@metamask/detect-provider';
 import axios from 'axios';
+import bytecode from '../build/contracts/bytecode/autopurchase';
 
-const abi = require('../build/contracts/exampleContract.json');
-const scAddress = process.env.REACT_APP_address;
+const autopurchaseAbi = require('../build/contracts/autopurchase.json');
 const Web3 = require('web3');
 var web3;
 
@@ -19,35 +19,35 @@ class App extends React.Component {
     this.instantiateWeb3();
   }
 
-  handleInputTxIDChange(event) {
+  handleInputTxIDChange = (event) => {
     this.setState({
       txID: event.target.value,
     });
-  }
+  };
 
-  handleInputClientIDChange(event) {
+  handleInputClientIDChange = (event) => {
     this.setState({
       clientID: event.target.value,
     });
-  }
+  };
 
-  handleInputRefChange(event) {
+  handleInputRefChange = (event) => {
     this.setState({
       itemref: event.target.value,
     });
-  }
+  };
 
   sendPurchaseRequest() {
-    console.log(`Q${this.state.modelNumber}`);
     var data = JSON.stringify([
       {
-        id: '2022',
+        id: '1',
         eventType: 'recordInserted',
-        subject: 'myapp/vehicles/motorcycles',
+        subject: 'newItemRequested',
         eventTime: '2017-08-10T21:03:07+00:00',
         data: {
-          make: 'Audi',
-          model: `Q${this.state.modelNumber}`,
+          itemref: this.state.itemref,
+          txID: this.state.txID,
+          clientID: this.state.clientID,
         },
         dataVersion: '1.0',
       },
@@ -61,37 +61,50 @@ class App extends React.Component {
       },
       data: data,
     };
-    console.log(data);
     axios(config)
       .then(async function (response) {
         await console.log(JSON.stringify(response.data));
       })
       .catch(function (error) {
-        console.log(error);
+        console.error(error);
       });
   }
 
-  onBuyLater = async () => {
+  onBuyLater = async (event) => {
+    event.preventDefault();
     var accounts = await web3.eth.getAccounts();
-    var exampleContract = new web3.eth.Contract(
-      abi,
-      web3.utils.toChecksumAddress(scAddress)
-    );
-    await exampleContract.methods
-      .foo(3)
+    var txID = web3.utils.padLeft(web3.utils.asciiToHex(this.state.txID), 64);
+    var autopurchaseContract = await new web3.eth.Contract(autopurchaseAbi);
+    var scAddress;
+    await autopurchaseContract
+      .deploy({
+        data: bytecode,
+        arguments: [txID, this.state.itemref, this.state.clientID],
+      })
       .send({ from: accounts[0] })
       .then((receipt) => {
         if (receipt) {
-          const response = receipt.events.ReturnValue.returnValues[1];
-          this.setState(
-            {
-              modelNumber: response,
-            },
-            () => {
-              this.sendPurchaseRequest();
-            }
-          );
+          scAddress = receipt._address;
         }
+      });
+    var autopurchaseSC = await new web3.eth.Contract(
+      autopurchaseAbi,
+      scAddress
+    );
+    await autopurchaseSC
+      .getPastEvents('AskItem', function (error, event) {})
+      .then((event) => {
+        var response = event[0].returnValues;
+        this.setState(
+          {
+            itemref: response.itemRef,
+            txID: response.txNumber,
+            clientID: response.clientID,
+          },
+          () => {
+            this.sendPurchaseRequest();
+          }
+        );
       });
   };
 
@@ -161,3 +174,9 @@ class App extends React.Component {
 }
 
 export default App;
+
+/*
+-verifier chaque input
+-verifier dans le web3 et afficher un message d'erreur avant le bouton pour indiquer quil n'y a pas de compte
+-ne pas faire apparaître dans l'url les valeurs du formulaire au moment du clic sur le bouton 
+*/
