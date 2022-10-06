@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: autopurchase
-      url: https://autopurchase.com
+      url: https://LNga.github.io/autopurchase.com
     needs: build
     steps:
       - name: Download artifact
