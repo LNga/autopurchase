@@ -13,6 +13,7 @@ class App extends React.Component {
     itemref: '',
     txID: '',
     clientID: '',
+    scAddress: '',
   };
 
   componentDidMount() {
@@ -34,6 +35,12 @@ class App extends React.Component {
   handleInputRefChange = (event) => {
     this.setState({
       itemref: event.target.value,
+    });
+  };
+
+  handleInputSCChange = (event) => {
+    this.setState({
+      scAddress: event.target.value,
     });
   };
 
@@ -70,9 +77,64 @@ class App extends React.Component {
       });
   }
 
+  onBackItem = async (event) => {
+    event.preventDefault();
+    var data = JSON.stringify([
+      {
+        id: '2',
+        eventType: 'recordInserted',
+        subject: 'ItemRequestedBackInStock',
+        eventTime: '2022-09-20T21:03:07+00:00',
+        data: {
+          itemref: this.state.itemref,
+          clientID: this.state.clientID,
+          scAddress: this.state.scAddress,
+        },
+        dataVersion: '1.0',
+      },
+    ]);
+    var config = {
+      method: 'post',
+      url: '/api/events',
+      headers: {
+        'aeg-sas-key': 'S2fBgcLlmVsula7s6iN9zDedjyt4DqIT7CUHkkHx5Hg=',
+        'Content-Type': 'application/json',
+      },
+      data: data,
+    };
+    axios(config)
+      .then(async function (response) {
+        await console.log(JSON.stringify(response.data));
+      })
+      .catch(function (error) {
+        console.error(error);
+      });
+  };
+
+  async notifyBackItem() {
+    // variables : sc address, account, abi, item ref, clientID
+    var scAddress = '0x360f836832b59916b487f9c1f485e11ae17cb404';
+    var accounts = await web3.eth.getAccounts();
+    var autopurchaseSC = await new web3.eth.Contract(
+      autopurchaseAbi,
+      scAddress
+    );
+    await autopurchaseSC.methods
+      .backItem('PINKO259', 5) //variable itemref
+      .send({ from: accounts[0] }) //variable account
+      .then(function (receipt) {
+        if (receipt) {
+          console.log(receipt);
+        }
+      });
+  }
+
   onBuyLater = async (event) => {
     event.preventDefault();
     var accounts = await web3.eth.getAccounts();
+    console.log(this.state.txID);
+    console.log(web3.utils.asciiToHex(this.state.txID));
+    console.log(web3.utils.padLeft(web3.utils.asciiToHex(this.state.txID), 64));
     var txID = web3.utils.padLeft(web3.utils.asciiToHex(this.state.txID), 64);
     var autopurchaseContract = await new web3.eth.Contract(autopurchaseAbi);
     var scAddress;
@@ -165,6 +227,45 @@ class App extends React.Component {
             <br />
             <button className='ui button primary' onClick={this.onBuyLater}>
               Buy later
+            </button>
+          </form>
+        </div>
+        <div className='ui segment'>
+          <form action='/button-type'>
+            <label>
+              Item Ref. :<br />
+              <input
+                type='text'
+                name='itemref'
+                onChange={this.handleInputRefChange}
+              />
+            </label>
+            <br />
+            <br />
+            <label>
+              Client ID:
+              <br />
+              <input
+                type='text'
+                name='clientID'
+                onChange={this.handleInputClientIDChange}
+              />
+            </label>
+            <br />
+            <br />
+            <label>
+              Smart Contract Address:
+              <br />
+              <input
+                type='text'
+                name='scAddress'
+                onChange={this.handleInputSCChange}
+              />
+            </label>
+            <br />
+            <br />
+            <button className='ui button secondary' onClick={this.onBackItem}>
+              Back item
             </button>
           </form>
         </div>
