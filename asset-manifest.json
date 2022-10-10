@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.js": "/autopurchase.com/static/js/main.b9314d0c.js",
-    "index.html": "/autopurchase.com/index.html",
-    "main.b9314d0c.js.map": "/autopurchase.com/static/js/main.b9314d0c.js.map"
+    "main.js": "/autopurchase/static/js/main.f4e02383.js",
+    "index.html": "/autopurchase/index.html",
+    "main.f4e02383.js.map": "/autopurchase/static/js/main.f4e02383.js.map"
   },
   "entrypoints": [
-    "static/js/main.b9314d0c.js"
+    "static/js/main.f4e02383.js"
   ]
 }
