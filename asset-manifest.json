@@ -1,0 +1,10 @@
+{
+  "files": {
+    "main.js": "/autopurchase/static/js/main.f4e02383.js",
+    "index.html": "/autopurchase/index.html",
+    "main.f4e02383.js.map": "/autopurchase/static/js/main.f4e02383.js.map"
+  },
+  "entrypoints": [
+    "static/js/main.f4e02383.js"
+  ]
+}
