@@ -1,11 +1,15 @@
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const proxy = {
-  target: 'https://back-in-stock-topic.westeurope-1.eventgrid.azure.net/',
+  target: process.env.REACT_APP_OUT_OF_STOCK_URL,
   changeOrigin: true,
 };
 
-//https://out-of-stock-order-topic.westeurope-1.eventgrid.azure.net/
+const proxy2 = {
+  target: process.env.REACT_APP_BACK_IN_STOCK_URL,
+  changeOrigin: true,
+};
 
 module.exports = function (app) {
   app.use('/api/events', createProxyMiddleware(proxy));
+  app.use('/api2/events', createProxyMiddleware(proxy2));
 };
