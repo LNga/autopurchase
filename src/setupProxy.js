@@ -7,6 +7,9 @@ const proxy = {
 const proxy2 = {
   target: process.env.REACT_APP_BACK_IN_STOCK_URL,
   changeOrigin: true,
+  pathRewrite: {
+    '^/api2/events': '/api/events', // rewrite path
+  },
 };
 
 module.exports = function (app) {
