@@ -95,7 +95,7 @@ class App extends React.Component {
     ]);
     var config = {
       method: 'post',
-      url: '/api/events',
+      url: '/api2/events',
       headers: {
         'aeg-sas-key': 'S2fBgcLlmVsula7s6iN9zDedjyt4DqIT7CUHkkHx5Hg=',
         'Content-Type': 'application/json',
